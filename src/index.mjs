@@ -109,7 +109,12 @@ export const client = {
   },
   fetchWebhook: async function(URL) {
     let response = await fetch(URL)
-    const webhook = await response.json();
+    let webhook = await response.json();
+    webhook.executable = new Webhook(URL)
+    webhook.send = async function(message) {
+      hook = this.executable
+      hook.send(message)
+    }
     return webhook;
   }
 }
