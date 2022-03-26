@@ -8,8 +8,9 @@ let session_id;
 let seq;
 let BotEvents = new EventEmitter();
 export const client = {
-	create: async function(token, intents = 98303) {
-		token = `Bot ${token}`;
+	create: async function(Authorization, intents = 98303) {
+		let token = `Bot ${Authorization}`;
+    let global.token = token;
     this.token = token;
     this.intents = intents;
 		let socketRestart = new EventEmitter();
@@ -105,6 +106,7 @@ export const client = {
     console.log(`Destroying client`)
     this.token = null;
     this.intents = null;
+    token = undefined;
     ws.close(1000)
   },
   fetchWebhook: async function(URL) {
