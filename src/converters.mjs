@@ -48,6 +48,23 @@ export async function convertChannel(channel){
       message = convertMessage(data)
       return message;
   }
+  channel.edit = async function (newChannel){
+    let channel = this;
+    let response = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages`{
+        "method": "POST",
+          "headers": {
+              "Authorization": token
+            },
+            "name": newChannel.name,
+            "position": newChannel.position,
+            "topic": newChannel.topic,
+            "nsfw": newChannel.nsfw,
+            "rate_limit_per_user": newChannel.rate_limit_per_user,
+            "parent_id": newChannel.parent_id
+          })
+        let data = await response.json()
+        channel = convertChannel(data)
+  }
 }
 
 export async function convertGuild(guild){
