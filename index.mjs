@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { Webhook } from "discord-webhook-node";
+import { Webhook, MessageBuilder } from "discord-webhook-node";
 import EventEmitter from "events";
 import pkg from "websocket";
 const { client: WebSocketClient } = pkg;
@@ -49,7 +49,7 @@ export const client = {
 				});
 
 				connection.on('close', async (event) => {
-          if (event.reasonCode != 4000){
+          if (event.reasonCode != 1000){
 					console.log('Discord connection closed, reconnecting now...');
 					ws = new WebSocketClient();
 					recon = true;
@@ -105,7 +105,7 @@ export const client = {
     console.log(`Destroying client`)
     this.token = null;
     this.intents = null;
-    ws.close(4000)
+    ws.close(1000)
   },
   fetchWebhook: async function(URL) {
     let response = await fetch(URL)
@@ -115,6 +115,7 @@ export const client = {
       hook = this.executable
       hook.send(message)
     }
+    webhook.MessageBuilder = MessageBuilder;
     return webhook;
   }
 }

@@ -2,7 +2,7 @@
   "name": "Discord-Api=Lib",
   "version": "0.1.0",
   "description": "A module that wraps the Discord API in a way that is as simple as possible",
-  "main": "./src/index.js",
+  "main": "./index.js",
   "type": "module",
   "dependencies": {
     "discord-webhook-node": "^1.1.8",
