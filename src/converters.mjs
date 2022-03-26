@@ -56,8 +56,9 @@ let response = await fetch(`https://discord.com/api/v9/channels/${channelId}`{
     "headers": {
         "Authorization": token
       }})
-let channel = await response.json()
-
+let data = await response.json()
+let channel = convertChannel(data)
+return channel;
 }
 }
 export const GuildManager = {
