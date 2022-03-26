@@ -98,6 +98,7 @@ export const client = {
 				});
 
 			})
+      ws.connect(`wss://gateway.discord.gg/?encoding=json&v=9`)
 		})
 		socketRestart.emit(`start`)
 	},
