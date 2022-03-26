@@ -10,6 +10,8 @@ let BotEvents = new EventEmitter();
 export const client = {
 	create: async function(token, intents = 98303) {
 		token = `Bot ${token}`;
+    this.token = token;
+    this.intents = intents;
 		let socketRestart = new EventEmitter();
 		let ws = new WebSocketClient();
 		let payload = {
@@ -46,11 +48,12 @@ export const client = {
 					console.log("Connection Error: " + error.toString());
 				});
 
-				connection.on('close', function() {
+				connection.on('close', async (event) => {
+          if (event.reasonCode != 4000){
 					console.log('Discord connection closed, reconnecting now...');
 					ws = new WebSocketClient();
 					recon = true;
-					socketRestart.emit(`start`)
+					socketRestart.emit(`start`)}
 				});
 
 				connection.on('message', function(message) {
@@ -97,5 +100,11 @@ export const client = {
 		})
 		socketRestart.emit(`start`)
 	},
-	EventManager: BotEvents
+	EventManager: BotEvents,
+  destroy: async function() {
+    console.log(`Destroying client`)
+    this.token = null;
+    this.intents = null;
+    ws.close(4000)
+  }
 }
