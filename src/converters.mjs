@@ -66,7 +66,32 @@ export async function convertChannel(channel) {
 		let data = await response.json()
 		channel = convertChannel(data)
 	}
-}
+  channel.BulkDelete = async function(numOfMessages, around, before, after) {
+  	let channel = this;
+  	let messages = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages` {
+  		"method": "GET",
+  		"headers": {
+  			"Authorization": token
+  		},
+  		"limit": numOfMessages,
+  		"around": around,
+  		"before": before,
+  		"after": after
+  	}).then(async (response) => {
+  		return await response.json();
+  	})
+  	messages.forEach(async (element) => {
+  			element = element.id
+  		}
+  		await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages` {
+  			"method": "GET",
+  			"headers": {
+  				"Authorization": token
+  			},
+  			"messages": messages
+  		})
+  	}
+  }
 
 export async function convertGuild(guild) {
 	guild.fetchChannel = async function(channelId) {
