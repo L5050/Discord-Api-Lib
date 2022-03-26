@@ -106,5 +106,10 @@ export const client = {
     this.token = null;
     this.intents = null;
     ws.close(4000)
+  },
+  fetchWebhook: async function(URL) {
+    let response = await fetch(URL)
+    const webhook = await response.json();
+    return webhook;
   }
 }
