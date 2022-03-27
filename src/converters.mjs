@@ -7,7 +7,7 @@ let token = global.token;
 export async function convertMessage(message) {
 	message.delete = async function() {
 		let message = this;
-		await fetch(`https://discord.com/api/v9/channels/${message.channel.id}/messages/${message.id}` {
+		await fetch(`https://discord.com/api/v9/channels/${message.channel.id}/messages/${message.id}`, {
 			"method": "DELETE",
 			"headers": {
 				"Authorization": token
@@ -16,7 +16,7 @@ export async function convertMessage(message) {
 	}
 	message.edit = async function(newMessage) {
 		let message = this;
-		await fetch(`https://discord.com/api/v9/channels/${message.channel.id}/messages/${message.id}` {
+		await fetch(`https://discord.com/api/v9/channels/${message.channel.id}/messages/${message.id}`, {
 			"method": "PATCH",
 			"headers": {
 				"Authorization": token
@@ -28,7 +28,7 @@ export async function convertMessage(message) {
 }
 export async function convertChannel(channel) {
 	channel.delete = async function() {
-		await fetch(`https://discord.com/api/v9/channels/${channel.id}` {
+		await fetch(`https://discord.com/api/v9/channels/${channel.id}`, {
 			"method": "DELETE",
 			"headers": {
 				"Authorization": token
@@ -37,7 +37,7 @@ export async function convertChannel(channel) {
 	}
 	channel.send = async function(message) {
 		let channel = this;
-		let response = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages` {
+		let response = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages`, {
 			"method": "POST",
 			"headers": {
 				"Authorization": token
@@ -51,7 +51,7 @@ export async function convertChannel(channel) {
 	}
 	channel.edit = async function(newChannel) {
 		let channel = this;
-		let response = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages` {
+		let response = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages`, {
 			"method": "POST",
 			"headers": {
 				"Authorization": token
@@ -68,7 +68,7 @@ export async function convertChannel(channel) {
 	}
   channel.BulkDelete = async function(numOfMessages, around, before, after) {
   	let channel = this;
-  	let messages = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages` {
+  	let messages = await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages`, {
   		"method": "GET",
   		"headers": {
   			"Authorization": token
@@ -82,8 +82,8 @@ export async function convertChannel(channel) {
   	})
   	messages.forEach(async (element) => {
   			element = element.id
-  		}
-  		await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages` {
+  		})
+  		await fetch(`https://discord.com/api/v9/channels/${channel.id}/messages`, {
   			"method": "GET",
   			"headers": {
   				"Authorization": token
@@ -95,7 +95,7 @@ export async function convertChannel(channel) {
 
 export async function convertGuild(guild) {
 	guild.fetchChannel = async function(channelId) {
-		let response = await fetch(`https://discord.com/api/v9/channels/${channelId}` {
+		let response = await fetch(`https://discord.com/api/v9/channels/${channelId}`, {
 			"headers": {
 				"Authorization": token
 			}
