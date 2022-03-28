@@ -1,20 +1,39 @@
 import fetch from "node-fetch";
 import { Webhook, MessageBuilder } from "discord-webhook-node";
 import EventEmitter from "events";
-import pkg from "websocket";
-const { client: WebSocketClient } = pkg;
+import WebSocket from 'ws';
 let recon = false;
 let session_id;
 let seq;
+let allowed = true;
 let BotEvents = new EventEmitter();
+let sleep = function(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds) {
+            break;
+        }
+    }
+    return (new Date().getTime())-start;
+}
 export const client = {
+  Logger: {
+  log: async function(logs){
+  if (allowed == true) console.log(logs);
+},
+false: async function(){
+allowed = false;
+},
+true: async function(){
+allowed = true;
+}
+},
 	create: async function(Authorization, intents = 98303) {
 		let token = `Bot ${Authorization}`;
     global.token = token;
     this.token = token;
     this.intents = intents;
 		let socketRestart = new EventEmitter();
-		let ws = new WebSocketClient();
 		let payload = {
 			op: 2,
 			d: {
@@ -22,8 +41,10 @@ export const client = {
 				intents: intents
 			}
 		};
+    let ws;
 		socketRestart.on('start', () => {
-			ws.on('connect', function(connection) {
+    ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
+			ws.on('open', function open() {
 				console.log('WebSocket Connected');
 				//if the recon is false then it sends a normal connection payload
 				if (recon != true) {
@@ -31,6 +52,7 @@ export const client = {
 						op: 1,
 						d: null
 					}))
+          sleep(500)
 					ws.send(JSON.stringify(payload))
 				} else {
 					//if recon is true then it sends the reconnect payload
@@ -45,22 +67,23 @@ export const client = {
 					recon = false;
 				}
 
-				connection.on('error', function(error) {
+				ws.on('error', function(error) {
 					console.log("Connection Error: " + error.toString());
 				});
 
-				connection.on('close', async (event) => {
+				ws.on('close', async (event) => {
           if (event.reasonCode != 1000){
-					console.log('Discord connection closed, reconnecting now...');
-					ws = new WebSocketClient();
+					console.log('Discord ws closed, reconnecting now...');
+					ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
 					recon = true;
 					socketRestart.emit(`start`)}
 				});
 
-				connection.on('message', function(message) {
-
-					var x = message.data;
+				ws.on('message', function message(data) {
+					var x = data;
+        //  console.log(x.toJSON())
 					var payload = JSON.parse(x);
+          console.log(payload)
 					const {
 						t,
 						s,
@@ -86,19 +109,19 @@ export const client = {
 					switch (t) {
 						case "READY":
 							session_id = d.session_id;
-							this.EventManager.emit(t, d)
+							BotEvents.emit(t, d)
 							break;
 						default:
 							if (t != 'HEARTBEAT') {
 								seq = s;
-								this.EventManager.emit(t, d)
+								BotEvents.emit(t, d)
 							}
+              console.log(`${t}\n${d}`)
 							break;
 					}
 				});
 
 			})
-      ws.connect(`wss://gateway.discord.gg/?encoding=json&v=9`)
 		})
 		socketRestart.emit(`start`)
 	},
