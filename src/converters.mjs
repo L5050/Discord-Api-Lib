@@ -4,7 +4,35 @@ import EventEmitter from "events";
 import pkg from "websocket";
 const { client: WebSocketClient } = pkg;
 let token = global.token;
+export async function convertMember(member){
+member.ban = async function(guildId, reason) {
+  if (!reason) reason = null;
+  member = this;
+  let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/bans/${member.id}`, {
+    "method": "PUT",
+    "headers": {
+      "Authorization": token,
+      "X-Audit-Log-Reason": reason
+    },
+}).then(async (response) => {
+  return await response.json();
+})
+}
+}
 export async function convertMessage(message) {
+  message.ban = async function(reason) {
+    if (!reason) reason = null;
+    message = this;
+    let response = await fetch(`https://discord.com/api/v9/guilds/${message.guild_id}/bans/${message.member.id}`, {
+      "method": "PUT",
+      "headers": {
+        "Authorization": token,
+        "X-Audit-Log-Reason": reason
+      },
+  }).then(async (response) => {
+    return await response.json();
+  })
+  }
 	message.delete = async function() {
 		let message = this;
 		await fetch(`https://discord.com/api/v9/channels/${message.channel.id}/messages/${message.id}`, {
