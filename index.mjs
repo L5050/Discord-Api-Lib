@@ -8,8 +8,8 @@ let seq;
 let allowed = true;
 let BotEvents = new EventEmitter();
 let sleep = function(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 1e7; i++) {
+    let start = new Date().getTime();
+    for (let i = 0; i < 1e7; i++) {
         if ((new Date().getTime() - start) > milliseconds) {
             break;
         }
@@ -37,9 +37,14 @@ allowed = true;
 		let payload = {
 			op: 2,
 			d: {
-				token: token,
-				intents: intents
-			}
+				token: Authorization,
+				intents: intents,
+        properties: {
+            $os: "linux",
+            $browser: "chrome",
+            $device: "chrome"
+        }
+			},
 		};
     let ws;
 		socketRestart.on('start', () => {
@@ -52,7 +57,6 @@ allowed = true;
 						op: 1,
 						d: null
 					}))
-          sleep(500)
 					ws.send(JSON.stringify(payload))
 				} else {
 					//if recon is true then it sends the reconnect payload
@@ -81,9 +85,7 @@ allowed = true;
 
 				ws.on('message', function message(data) {
 					var x = data;
-        //  console.log(x.toJSON())
 					var payload = JSON.parse(x);
-          console.log(payload)
 					const {
 						t,
 						s,
@@ -112,11 +114,12 @@ allowed = true;
 							BotEvents.emit(t, d)
 							break;
 						default:
-							if (t != 'HEARTBEAT') {
+							if (t != 'null') {
 								seq = s;
 								BotEvents.emit(t, d)
-							}
-              console.log(`${t}\n${d}`)
+              console.log(t)
+              console.log(d)
+            }
 							break;
 					}
 				});
