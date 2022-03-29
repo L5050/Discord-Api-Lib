@@ -11,52 +11,52 @@ let seq;
 let allowed = true;
 let BotEvents = new EventEmitter();
 let sleep = function(milliseconds) {
-    let start = new Date().getTime();
-    for (let i = 0; i < 1e7; i++) {
-        if ((new Date().getTime() - start) > milliseconds) {
-            break;
-        }
-    }
-    return (new Date().getTime())-start;
+	let start = new Date().getTime();
+	for (let i = 0; i < 1e7; i++) {
+		if ((new Date().getTime() - start) > milliseconds) {
+			break;
+		}
+	}
+	return (new Date().getTime()) - start;
 }
 
 let Authorization = myToken.token;
 let token = `Bot ${myToken.token}`;
 console.log(token)
 export const client = {
-  Logger: {
-  log: async function(logs){
-  if (allowed == true) console.log(logs);
-},
-false: async function(){
-allowed = false;
-},
-true: async function(){
-allowed = true;
-}
-},
+	Logger: {
+		log: async function(logs) {
+			if (allowed == true) console.log(logs);
+		},
+		false: async function() {
+			allowed = false;
+		},
+		true: async function() {
+			allowed = true;
+		}
+	},
 	create: async function(intents = 98303) {
 		//let token = `Bot ${Authorization}`;
-    global.token = token;
-    this.token = token;
-    this.intents = intents;
+		global.token = token;
+		this.token = token;
+		this.intents = intents;
 		let socketRestart = new EventEmitter();
 		let payload = {
 			op: 2,
 			d: {
 				token: Authorization,
 				intents: intents,
-        properties: {
-            $os: "linux",
-            $browser: "chrome",
-            $device: "chrome"
-        }
+				properties: {
+					$os: "linux",
+					$browser: "chrome",
+					$device: "chrome"
+				}
 			},
 		};
-    let ws;
-    console.log(`Preparing to start websocket...`)
+		let ws;
+		console.log(`Preparing to start websocket...`)
 		socketRestart.on('start', () => {
-    ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
+			ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
 			ws.on('open', function open() {
 				console.log('WebSocket Connected');
 				//if the recon is false then it sends a normal connection payload
@@ -84,11 +84,12 @@ allowed = true;
 				});
 
 				ws.on('close', async (event) => {
-          if (event.reasonCode != 1000){
-					console.log('Discord ws closed, reconnecting now...');
-					ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
-					recon = true;
-					socketRestart.emit(`start`)}
+					if (event.reasonCode != 1000) {
+						console.log('Discord ws closed, reconnecting now...');
+						ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
+						recon = true;
+						socketRestart.emit(`start`)
+					}
 				});
 
 				ws.on('message', function message(data) {
@@ -125,9 +126,9 @@ allowed = true;
 							if (t != 'null') {
 								seq = s;
 								BotEvents.emit(t, d)
-              //console.log(t)
-              //console.log(d)
-            }
+								//console.log(t)
+								//console.log(d)
+							}
 							break;
 					}
 				});
@@ -137,35 +138,35 @@ allowed = true;
 		socketRestart.emit(`start`)
 	},
 	EventManager: BotEvents,
-  destroy: async function() {
-    console.log(`Destroying client`)
-    this.token = null;
-    this.intents = null;
-    token = undefined;
-    ws.close(1000)
-  },
-  fetchGuildMember: async function(guildId, memberId) {
-	let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members/${memberId}`, {
-		"method": "GET",
-		"headers": {
-			"Authorization": token
+	destroy: async function() {
+		console.log(`Destroying client`)
+		this.token = null;
+		this.intents = null;
+		token = undefined;
+		ws.close(1000)
+	},
+	fetchGuildMember: async function(guildId, memberId) {
+		let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members/${memberId}`, {
+			"method": "GET",
+			"headers": {
+				"Authorization": token
+			}
+		}).then(async (response) => {
+			return await response.json();
+		})
+		const member = await convertMember(response)
+		member.guildId = guildId
+		return member;
+	},
+	fetchWebhook: async function(URL) {
+		let response = await fetch(URL)
+		let webhook = await response.json();
+		webhook.executable = new Webhook(URL)
+		webhook.send = async function(message) {
+			hook = this.executable
+			hook.send(message)
 		}
-	}).then(async (response) => {
-		return await response.json();
-	})
-   const member = await convertMember(response)
-   member.guildId = guildId
-	return member;
-},
-  fetchWebhook: async function(URL) {
-    let response = await fetch(URL)
-    let webhook = await response.json();
-    webhook.executable = new Webhook(URL)
-    webhook.send = async function(message) {
-      hook = this.executable
-      hook.send(message)
-    }
-    webhook.MessageBuilder = MessageBuilder;
-    return webhook;
-  }
+		webhook.MessageBuilder = MessageBuilder;
+		return webhook;
+	}
 }
