@@ -2,25 +2,27 @@ import fetch from "node-fetch";
 import { Webhook, MessageBuilder } from "discord-webhook-node";
 import EventEmitter from "events";
 import fs from "fs"
-let token;
-fs.readFile('token.txt', 'utf8', function(err, data){
-token = `Bot ${data}`;
-});
+import myToken from '../token.json' assert { type: 'json' };
+let Authorization = myToken.token;
+let token = `Bot ${myToken.token}`;
 export async function convertMember(member){
-member.ban = async function(reason, guildId) {
-  if (!reason) reason = null;
+member.ban = async function(reason=null, guildId, days=0) {
   member = this;
   if (member.guildId) guildId = member.guildId;
-  let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/bans/${member.id}`, {
+  let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/bans/${member.user.id}`, {
     "method": "PUT",
     "headers": {
       "Authorization": token,
       "X-Audit-Log-Reason": reason
-    }
-}).then(async (response) => {
-  return await response.json();
-})
-
+    },
+    "delete_message_days": days
+  }).then(async (response) => {
+    if (response.status == 204){
+      return "Member banned succesfully"
+    }else {
+    return await response.json();}
+  })
+console.log(response.errors)
 return response;
 }
 member.kick = async function(guildId, reason) {
@@ -63,10 +65,14 @@ export async function convertMessage(message) {
       "headers": {
         "Authorization": token,
         "X-Audit-Log-Reason": reason
-      }
-  }).then(async (response) => {
-    return await response.json();
-  })
+      },
+      "delete_message_days": days
+    }).then(async (response) => {
+      if (response.status == 204){
+        return "Member banned succesfully"
+      }else {
+      return await response.json();}
+    })
   }
 	message.delete = async function() {
 		let message = this;

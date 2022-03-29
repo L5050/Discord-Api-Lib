@@ -4,6 +4,7 @@ import { Webhook, MessageBuilder } from "discord-webhook-node";
 import { convertGuild, convertMember, convertChannel, convertMessage} from "./src/converters.mjs"
 import EventEmitter from "events";
 import WebSocket from 'ws';
+import myToken from './token.json' assert { type: 'json' };
 let recon = false;
 let session_id;
 let seq;
@@ -18,12 +19,10 @@ let sleep = function(milliseconds) {
     }
     return (new Date().getTime())-start;
 }
-let token;
-let Authorization;
-fs.readFile('token.txt', 'utf8', function(err, data){
-token = `Bot ${data}`;
-//Authorization = data;
-});
+
+let Authorization = myToken.token;
+let token = `Bot ${myToken.token}`;
+console.log(token)
 export const client = {
   Logger: {
   log: async function(logs){
@@ -36,7 +35,7 @@ true: async function(){
 allowed = true;
 }
 },
-	create: async function(Authorization, intents = 98303) {
+	create: async function(intents = 98303) {
 		//let token = `Bot ${Authorization}`;
     global.token = token;
     this.token = token;
@@ -55,6 +54,7 @@ allowed = true;
 			},
 		};
     let ws;
+    console.log(`Preparing to start websocket...`)
 		socketRestart.on('start', () => {
     ws = new WebSocket('wss://gateway.discord.gg/?encoding=json&v=9');
 			ws.on('open', function open() {
@@ -125,8 +125,8 @@ allowed = true;
 							if (t != 'null') {
 								seq = s;
 								BotEvents.emit(t, d)
-              console.log(t)
-              console.log(d)
+              //console.log(t)
+              //console.log(d)
             }
 							break;
 					}
