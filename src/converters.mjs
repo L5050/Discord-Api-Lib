@@ -1,8 +1,6 @@
 import fetch from "node-fetch";
 import { Webhook, MessageBuilder } from "discord-webhook-node";
 import EventEmitter from "events";
-import pkg from "websocket";
-const { client: WebSocketClient } = pkg;
 let token = global.token;
 export async function convertMember(member){
 member.ban = async function(guildId, reason) {
