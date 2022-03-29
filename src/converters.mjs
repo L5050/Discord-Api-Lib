@@ -13,7 +13,36 @@ member.ban = async function(guildId, reason) {
     "headers": {
       "Authorization": token,
       "X-Audit-Log-Reason": reason
+    }
+}).then(async (response) => {
+  return await response.json();
+})
+}
+member.kick = async function(guildId, reason) {
+  if (!reason) reason = null;
+  member = this;
+  let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members/${member.id}`, {
+    "method": "DELETE",
+    "headers": {
+      "Authorization": token,
+      "X-Audit-Log-Reason": reason
+    }
+}).then(async (response) => {
+  return await response.json();
+})
+}
+member.timeout = async function(guildId, time, reason) {
+  if (!reason) reason = null;
+  let muteTime = (Date.now()+time)
+  member = this;
+  let timeout = new Date(muteTime).toISOString()
+  let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members/${member.id}`, {
+    "method": "DELETE",
+    "headers": {
+      "Authorization": token,
+      "X-Audit-Log-Reason": reason
     },
+    "communication_disabled_until": timeout
 }).then(async (response) => {
   return await response.json();
 })
@@ -28,7 +57,7 @@ export async function convertMessage(message) {
       "headers": {
         "Authorization": token,
         "X-Audit-Log-Reason": reason
-      },
+      }
   }).then(async (response) => {
     return await response.json();
   })
