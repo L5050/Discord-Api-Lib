@@ -1,11 +1,16 @@
 import fetch from "node-fetch";
 import { Webhook, MessageBuilder } from "discord-webhook-node";
 import EventEmitter from "events";
-let token = global.token;
+import fs from "fs"
+let token;
+fs.readFile('token.txt', 'utf8', function(err, data){
+token = `Bot ${data}`;
+});
 export async function convertMember(member){
-member.ban = async function(guildId, reason) {
+member.ban = async function(reason, guildId) {
   if (!reason) reason = null;
   member = this;
+  if (member.guildId) guildId = member.guildId;
   let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/bans/${member.id}`, {
     "method": "PUT",
     "headers": {
@@ -15,6 +20,8 @@ member.ban = async function(guildId, reason) {
 }).then(async (response) => {
   return await response.json();
 })
+
+return response;
 }
 member.kick = async function(guildId, reason) {
   if (!reason) reason = null;
@@ -45,6 +52,7 @@ member.timeout = async function(guildId, time, reason) {
   return await response.json();
 })
 }
+return member;
 }
 export async function convertMessage(message) {
   message.ban = async function(reason) {

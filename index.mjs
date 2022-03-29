@@ -1,5 +1,7 @@
+import fs from "fs";
 import fetch from "node-fetch";
 import { Webhook, MessageBuilder } from "discord-webhook-node";
+import { convertGuild, convertMember, convertChannel, convertMessage} from "./src/converters.mjs"
 import EventEmitter from "events";
 import WebSocket from 'ws';
 let recon = false;
@@ -16,6 +18,12 @@ let sleep = function(milliseconds) {
     }
     return (new Date().getTime())-start;
 }
+let token;
+let Authorization;
+fs.readFile('token.txt', 'utf8', function(err, data){
+token = `Bot ${data}`;
+//Authorization = data;
+});
 export const client = {
   Logger: {
   log: async function(logs){
@@ -29,7 +37,7 @@ allowed = true;
 }
 },
 	create: async function(Authorization, intents = 98303) {
-		let token = `Bot ${Authorization}`;
+		//let token = `Bot ${Authorization}`;
     global.token = token;
     this.token = token;
     this.intents = intents;
@@ -136,6 +144,19 @@ allowed = true;
     token = undefined;
     ws.close(1000)
   },
+  fetchGuildMember: async function(guildId, memberId) {
+	let response = await fetch(`https://discord.com/api/v9/guilds/${guildId}/members/${memberId}`, {
+		"method": "GET",
+		"headers": {
+			"Authorization": token
+		}
+	}).then(async (response) => {
+		return await response.json();
+	})
+   const member = await convertMember(response)
+   member.guildId = guildId
+	return member;
+},
   fetchWebhook: async function(URL) {
     let response = await fetch(URL)
     let webhook = await response.json();
